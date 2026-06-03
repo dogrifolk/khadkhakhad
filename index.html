@@ -94,11 +94,44 @@
 </div>
 </fieldset>
 <fieldset><legend>Payment Confirmation</legend>
-<div class="total-box"><span id="bookCount">1</span> × ₹499 Total: <strong id="total">₹499</strong></div>
+<div class="total-box">
+<span id="bookCount">1</span> × ₹499 Total:
+<strong id="total">₹499</strong>
+</div>
+
+<script>
+function updateTotal() {
+  let q = document.getElementById("quantity").value;
+  document.getElementById("bookCount").innerText = q;
+  document.getElementById("total").innerText = "₹" + (q * 499);
+}
+
+window.onload = updateTotal;
+</script>
 <div class="upi">Pay to UPI: 9711289008@ptaxis</div>
 <div class="order-id-card">
-<label>Order Number <input id="orderNumber" type="text" readonly /></label>
-<p class="safe-note">Generated automatically. Keep this number for your records.</p>
+  <label>
+    Order Number
+    <input id="orderNumber" name="order_number" type="text" readonly />
+  </label>
+
+  <p class="safe-note">
+    Generated automatically. Keep this number for your records.
+  </p>
+</div>
+
+<script>
+const now = new Date();
+
+const day = String(now.getDate()).padStart(2, '0');
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const year = now.getFullYear();
+
+const randomCode = Math.floor(1000 + Math.random() * 9000);
+
+document.getElementById("orderNumber").value =
+`KK-${day}${month}${year}-${randomCode}`;
+</script>
 </div>
 <label>UPI Transaction ID / Reference Number * <input name="upi_transaction_id" type="text" required /></label>
 <p class="safe-note">Find this in your PayTM / Google Pay / PhonePe transaction history after payment.</p>
