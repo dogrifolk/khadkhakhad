@@ -85,7 +85,20 @@
 <option value="5">5 books &mdash; ₹2495</option>
 </select></label></div>
 </fieldset><fieldset><legend>Payment Confirmation</legend>
-<div class="total-box"><span id="bookCount">1</span> &times; ₹499 Total: <strong id="total">₹499</strong></div>
+<div class="total-box">
+<span id="bookCount">1</span> × ₹499 Total:
+<strong id="total">₹499</strong>
+</div>
+
+<script>
+function updateTotal() {
+  let q = document.getElementById("quantity").value;
+  document.getElementById("bookCount").innerText = q;
+  document.getElementById("total").innerText = "₹" + (q * 499);
+}
+
+window.onload = updateTotal;
+</script>
 <div class="upi">Pay to UPI: 9711289008@ptaxis</div>
 <div class="order-id-card">
   <label>
