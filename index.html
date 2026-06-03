@@ -77,76 +77,41 @@
 <label>Phone Number * <input type="tel" name="phone" required /></label>
 <label class="span-2">Email Address * <input type="email" name="email" required /></label>
 </div>
-</fieldset>
-<fieldset><legend>Delivery Address</legend>
-<div class="form-grid">
-<label class="span-2">Street Address * <textarea name="address" rows="3" required></textarea></label>
-<label>City * <input type="text" name="city" required /></label>
-<label>State * <input type="text" name="state" required /></label>
-<label>PIN Code * <input type="text" name="pin" required /></label>
-<label>Quantity <select id="quantity" name="quantity" onchange="updateTotal()">
-<option value="1">1 book — ₹499</option>
-<option value="2">2 books — ₹998</option>
-<option value="3">3 books — ₹1497</option>
-<option value="4">4 books — ₹1996</option>
-<option value="5">5 books — ₹2495</option>
-</select></label>
-</div>
-</fieldset>
-<fieldset><legend>Payment Confirmation</legend>
-<div class="total-box">
-<span id="bookCount">1</span> × ₹499 Total:
-<strong id="total">₹499</strong>
-</div>
-
-<script>
-function updateTotal() {
-  let q = document.getElementById("quantity").value;
-  document.getElementById("bookCount").innerText = q;
-  document.getElementById("total").innerText = "₹" + (q * 499);
-}
-
-window.onload = updateTotal;
-</script>
+<form class="order-form" method="post" name="book-order" enctype="multipart/form-data" data-netlify="true">
+<input type="hidden" name="form-name" value="book-order" />
+<input type="hidden" name="subject" data-remove-prefix value="New Book Order - Khad Khakkhad - %{submissionId}" />
+<input type="hidden" name="book_title" value="खड़ खक्खड़" />
+<input id="orderTotal" type="hidden" name="total_amount" value="₹499" /><fieldset><legend>Personal Information</legend>
+<div class="form-grid"><label>Full Name * <input autocomplete="name" name="name" required="" type="text" /> </label> <label>Phone Number * <input autocomplete="tel" name="phone" required="" type="tel" /> </label> <label class="span-2">Email Address * <input autocomplete="email" name="email" required="" type="email" /> </label></div>
+</fieldset><fieldset><legend>Delivery Address</legend>
+<div class="form-grid"><label class="span-2">Street Address * <textarea name="address" required="" rows="3"></textarea> </label> <label>City * <input autocomplete="address-level2" name="city" required="" type="text" /> </label> <label>State * <input autocomplete="address-level1" name="state" required="" type="text" /> </label> <label>PIN Code * <input autocomplete="postal-code" name="pin" required="" type="text" /> </label> <label>Quantity<select id="quantity" name="quantity" onchange="updateTotal()">
+<option value="1">1 book &mdash; ₹499</option>
+<option value="2">2 books &mdash; ₹998</option>
+<option value="3">3 books &mdash; ₹1497</option>
+<option value="4">4 books &mdash; ₹1996</option>
+<option value="5">5 books &mdash; ₹2495</option>
+</select></label></div>
+</fieldset><fieldset><legend>Payment Confirmation</legend>
+<div class="total-box"><span id="bookCount">1</span> &times; ₹499 Total: <strong id="total">₹499</strong></div>
 <div class="upi">Pay to UPI: 9711289008@ptaxis</div>
 <div class="order-id-card">
-  <label>
-    Order Number
-    <input id="orderNumber" name="order_number" type="text" readonly />
-  </label>
-
-  <p class="safe-note">
-    Generated automatically. Keep this number for your records.
-  </p>
+<label>Order Number <input id="orderNumber" name="order_number" readonly="" type="text" /></label>
+<p class="safe-note">Generated automatically. Keep this number for your records.</p>
 </div>
-
-<script>
-const now = new Date();
-
-const day = String(now.getDate()).padStart(2, '0');
-const month = String(now.getMonth() + 1).padStart(2, '0');
-const year = now.getFullYear();
-
-const randomCode = Math.floor(1000 + Math.random() * 9000);
-
-document.getElementById("orderNumber").value =
-`KK-${day}${month}${year}-${randomCode}`;
-</script>
-</div>
-<label>UPI Transaction ID / Reference Number * <input name="upi_transaction_id" type="text" required /></label>
+<label>UPI Transaction ID / Reference Number * <input name="upi_transaction_id" required="" type="text" /> </label>
 <p class="safe-note">Find this in your PayTM / Google Pay / PhonePe transaction history after payment.</p>
-<label class="upload-box">Upload Payment Screenshot * <input id="paymentScreenshot" type="file" accept=".jpg,.jpeg,.png,.webp" required />
+<label class="upload-box">Upload Payment Screenshot *
+<input id="paymentScreenshot" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" name="payment_screenshot" required="" type="file" />
 <span>Upload one clear JPG, PNG or WEBP screenshot. Maximum size: 7 MB.</span>
 </label>
-</fieldset>
-<button class="submit" id="submitText" type="submit">Submit Order — ₹499</button>
+</fieldset><button id="submitText" class="submit" type="submit">Submit Order &mdash; ₹499</button>
 <p class="safe-note">Your information is safe. Order confirmed only after payment verification by the author.</p>
 </form>
 <div class="success-msg" id="successMsg">
-<span class="tick">✅</span>
-<h3>Order Submitted Successfully!</h3>
-<p>Thank you! Sumit will verify your payment and confirm your order shortly.<br>Keep your Order Number safe for reference.</p>
-</div>
+  <span class="tick">✅</span>
+  <h3>Order Submitted Successfully!</h3>
+  <p>Thank you! Sumit will verify your payment and confirm your order shortly.<br>Keep your Order Number safe for reference.</p>
+</div></div>
 </div>
 </section>
 <section id="review">
