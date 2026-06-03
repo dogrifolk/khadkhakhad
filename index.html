@@ -95,9 +95,28 @@
 <div class="total-box"><span id="bookCount">1</span> &times; ₹499 Total: <strong id="total">₹499</strong></div>
 <div class="upi">Pay to UPI: 9711289008@ptaxis</div>
 <div class="order-id-card">
-<label>Order Number <input id="orderNumber" name="order_number" readonly="" type="text" /></label>
-<p class="safe-note">Generated automatically. Keep this number for your records.</p>
+  <label>
+    Order Number
+    <input id="orderNumber" name="order_number" type="text" readonly />
+  </label>
+
+  <p class="safe-note">
+    Generated automatically. Keep this number for your records.
+  </p>
 </div>
+
+<script>
+const now = new Date();
+
+const day = String(now.getDate()).padStart(2, '0');
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const year = now.getFullYear();
+
+const randomCode = Math.floor(1000 + Math.random() * 9000);
+
+document.getElementById("orderNumber").value =
+`KK-${day}${month}${year}-${randomCode}`;
+</script>
 <label>UPI Transaction ID / Reference Number * <input name="upi_transaction_id" required="" type="text" /> </label>
 <p class="safe-note">Find this in your PayTM / Google Pay / PhonePe transaction history after payment.</p>
 <label class="upload-box">Upload Payment Screenshot *
@@ -167,7 +186,6 @@
 <script>
 const unitPrice=499,upiId="9711289008@ptaxis",payeeName="Sumit Khajuria";function updateTotal(){const e=Number(document.getElementById("quantity").value||1),t=499*e,n="₹"+t.toLocaleString("en-IN");document.getElementById("bookCount").textContent=e,document.getElementById("total").textContent=n,document.getElementById("submitText").textContent=`Submit Order — ${n}`,document.getElementById("qrAmount")&&(document.getElementById("qrAmount").textContent=n);document.getElementById("upiQR").src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${t}&cu=INR`)}`}function generateOrderNumber(){const e=new Date(),t=[e.getFullYear(),String(e.getMonth()+1).padStart(2,"0"),String(e.getDate()).padStart(2,"0")].join("");let n;if(window.crypto&&window.crypto.getRandomValues){const e=new Uint32Array(1);window.crypto.getRandomValues(e),n=e[0].toString(36).slice(0,6).toUpperCase().padEnd(6,"0")}else n=Math.random().toString(36).slice(2,8).toUpperCase();return`KHK-${t}-${n}`}function ensureOrderNumber(){const e=document.getElementById("orderNumber");e.value||e.value=generateOrderNumber()}document.addEventListener("DOMContentLoaded",(()=>{updateTotal(),ensureOrderNumber();document.getElementById("orderForm").addEventListener("submit",(e=>{e.preventDefault(),ensureOrderNumber();const t=document.getElementById("paymentScreenshot").files[0];t&&t.size>7*1024*1024?(alert("Please upload a payment screenshot smaller than 7 MB."),e.preventDefault()):setTimeout((()=>{document.getElementById("successMsg").style.display="block",document.getElementById("successMsg").scrollIntoView({behavior:"smooth"})}),500)}))}));
 </script>
-```html
 <script>
 const SCRIPT_URL =
 "https://script.google.com/macros/s/AKfycbxuULor4BLlIo4NfWU5I2-eeiAHhurSdFV0eqjiVzx5dRaJLLpUsjTMEzPvM5hBRyI/exec";
@@ -281,7 +299,6 @@ document
 });
 
 </script>
-```
 
 </body>
 </html>
