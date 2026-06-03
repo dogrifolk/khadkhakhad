@@ -169,5 +169,122 @@
 <script>
 const unitPrice=499,upiId="9711289008@ptaxis",payeeName="Sumit Khajuria";function updateTotal(){const e=Number(document.getElementById("quantity").value||1),t=499*e,n="₹"+t.toLocaleString("en-IN");document.getElementById("bookCount").textContent=e,document.getElementById("total").textContent=n,document.getElementById("submitText").textContent=`Submit Order — ${n}`,document.getElementById("qrAmount")&&(document.getElementById("qrAmount").textContent=n);document.getElementById("upiQR").src=`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${t}&cu=INR`)}`}function generateOrderNumber(){const e=new Date(),t=[e.getFullYear(),String(e.getMonth()+1).padStart(2,"0"),String(e.getDate()).padStart(2,"0")].join("");let n;if(window.crypto&&window.crypto.getRandomValues){const e=new Uint32Array(1);window.crypto.getRandomValues(e),n=e[0].toString(36).slice(0,6).toUpperCase().padEnd(6,"0")}else n=Math.random().toString(36).slice(2,8).toUpperCase();return`KHK-${t}-${n}`}function ensureOrderNumber(){const e=document.getElementById("orderNumber");e.value||e.value=generateOrderNumber()}document.addEventListener("DOMContentLoaded",(()=>{updateTotal(),ensureOrderNumber();document.getElementById("orderForm").addEventListener("submit",(e=>{e.preventDefault(),ensureOrderNumber();const t=document.getElementById("paymentScreenshot").files[0];t&&t.size>7*1024*1024?(alert("Please upload a payment screenshot smaller than 7 MB."),e.preventDefault()):setTimeout((()=>{document.getElementById("successMsg").style.display="block",document.getElementById("successMsg").scrollIntoView({behavior:"smooth"})}),500)}))}));
 </script>
+```html
+<script>
+
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbxuULor4BLlIo4NfWU5I2-eeiAHhurSdFV0eqjiVzx5dRaJLLpUsjTMEzPvM5hBRyI/exec";
+
+document
+.getElementById("orderForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const fileInput =
+      document.getElementById("paymentScreenshot");
+
+    const file = fileInput.files[0];
+
+    if(!file){
+        alert("Upload payment screenshot");
+        return;
+    }
+
+    // Max 7 MB check
+    if(file.size > 7 * 1024 * 1024){
+
+        alert("Screenshot exceeds 7 MB");
+
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = async function(){
+
+        const payload = {
+
+            orderNumber:
+              document.getElementById("orderNumber").value,
+
+            name:
+              document.querySelector('[name="name"]').value,
+
+            phone:
+              document.querySelector('[name="phone"]').value,
+
+            email:
+              document.querySelector('[name="email"]').value,
+
+            address:
+              document.querySelector('[name="address"]').value,
+
+            city:
+              document.querySelector('[name="city"]').value,
+
+            state:
+              document.querySelector('[name="state"]').value,
+
+            pin:
+              document.querySelector('[name="pin"]').value,
+
+            quantity:
+              document.querySelector('[name="quantity"]').value,
+
+            upi_transaction_id:
+              document.querySelector('[name="upi_transaction_id"]').value,
+
+            screenshot:
+              reader.result
+        };
+
+        try {
+
+            const response = await fetch(
+              SCRIPT_URL,
+              {
+                method: "POST",
+                body: JSON.stringify(payload)
+              }
+            );
+
+            const result =
+              await response.json();
+
+            if(result.success){
+
+                alert(
+                  "Order submitted successfully!"
+                );
+
+                document
+                  .getElementById("orderForm")
+                  .reset();
+
+            } else {
+
+                alert(
+                  "Error: " + result.error
+                );
+            }
+
+        } catch(error){
+
+            console.error(error);
+
+            alert(
+              "Submission failed"
+            );
+        }
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+</script>
+```
+
 </body>
 </html>
