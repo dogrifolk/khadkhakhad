@@ -586,25 +586,88 @@ const orderBtn=document.getElementById('orderSubmitBtn');
 function updateButtonPrice(){ let val=qtySelect.value; let price={1:499,2:990,3:1480,5:2400}[val]||499; orderBtn.innerHTML=`<i class="fas fa-lock"></i> PLACE ORDER (₹${price})`; }
 qtySelect.addEventListener('change',updateButtonPrice); updateButtonPrice();
 document.getElementById('screenshotFile').addEventListener('change',function(e){ let f=e.target.files[0]; if(f){ let reader=new FileReader(); reader.onload=ev=>{document.getElementById('previewDiv').innerHTML=`<img src="${ev.target.result}" style="max-width:80px; border-radius:12px;">`}; reader.readAsDataURL(f); } });
+
 const form=document.getElementById('orderForm');
-form.addEventListener('submit',async(e)=>{ e.preventDefault(); const btn=orderBtn; btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing...';
-  const orderData={orderNum:'KK-'+Date.now(), name:document.getElementById('fullName').value, phone:document.getElementById('phone').value, email:document.getElementById('email').value, address:document.getElementById('address').value, city:document.getElementById('city').value, state:document.getElementById('state').value, pincode:document.getElementById('pincode').value, qty:qtySelect.value, upi:document.getElementById('upiRef').value, timestamp:new Date().toISOString()};
-  if(!orderData.name||!orderData.phone||!orderData.address||!orderData.upi){ document.getElementById('formFeedback').innerHTML='<span style="color:red;">Please fill all required fields!</span>'; btn.disabled=false; updateButtonPrice(); return; }
-  let screenshotUrl=''; const file=document.getElementById('screenshotFile').files[0];
-  if(file){ try{ let fd=new FormData(); fd.append('image',file); let res=await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa98d0a2a901485a5',{method:'POST',body:fd}); let data=await res.json(); screenshotUrl=data.data?.url||'screenshot_uploaded'; }catch(e){ screenshotUrl='uploaded_locally'; } }
-  const payload={...orderData, screenshot:screenshotUrl, notifyEmail:'contactdogrifolk@gmail.com'};
-  const scriptURL='https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
-  try{ await fetch(scriptURL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}); }catch(e){ console.log('backend fallback - order saved locally'); }
-  document.getElementById('modalMsg').innerHTML=`Thank you ${orderData.name}! Order ${orderData.orderNum} received. We'll contact you on ${orderData.phone}.`;
-  document.getElementById('successModal').classList.add('open');
-  form.reset(); document.getElementById('previewDiv').innerHTML=''; btn.disabled=false; updateButtonPrice();
+form.addEventListener('submit',async(e)=>{ 
+  e.preventDefault(); 
+  const btn=orderBtn; 
+  btn.disabled=true; 
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing...';
+  
+  const orderData={
+    orderNum:'KK-'+Date.now(), 
+    name:document.getElementById('fullName').value, 
+    phone:document.getElementById('phone').value, 
+    email:document.getElementById('email').value, 
+    address:document.getElementById('address').value, 
+    city:document.getElementById('city').value, 
+    state:document.getElementById('state').value, 
+    pincode:document.getElementById('pincode').value, 
+    qty:qtySelect.value, 
+    upi:document.getElementById('upiRef').value, 
+    timestamp:new Date().toISOString()
+  };
+  
+  if(!orderData.name||!orderData.phone||!orderData.address||!orderData.upi){ 
+    document.getElementById('formFeedback').innerHTML='<span style="color:red;">Please fill all required fields!</span>'; 
+    btn.disabled=false; 
+    updateButtonPrice(); 
+    return; 
+  }
+  
+  const screenshotFile = document.getElementById('screenshotFile').files[0];
+  if(!screenshotFile){
+    document.getElementById('formFeedback').innerHTML='<span style="color:red;">Please upload payment screenshot!</span>'; 
+    btn.disabled=false; 
+    updateButtonPrice(); 
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = async function(evt) {
+    const base64Screenshot = evt.target.result.split(',')[1];
+    
+    const payload = {
+      ...orderData, 
+      screenshotBase64: base64Screenshot,
+      screenshotType: screenshotFile.type,
+      screenshotName: screenshotFile.name,
+      notifyEmail: 'contactdogrifolk@gmail.com'
+    };
+    
+    const scriptURL='https://script.google.com/macros/s/AKfycbxCjQc4W0EYlMntRKO5LSUH1_qZjGfg5GHZ2xvCMuAdNjx6mjrkBC1g81K4J451VNs/exec';
+    
+    try{ 
+      await fetch(scriptURL,{
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      }); 
+    } catch(e){ 
+      console.log('Error:', e); 
+    }
+    
+    document.getElementById('modalMsg').innerHTML=`Thank you ${orderData.name}! Order ${orderData.orderNum} received. We'll contact you on ${orderData.phone}.`;
+    document.getElementById('successModal').classList.add('open');
+    form.reset(); 
+    document.getElementById('previewDiv').innerHTML=''; 
+    btn.disabled=false; 
+    updateButtonPrice();
+  };
+  reader.readAsDataURL(screenshotFile);
 });
+
 function closeModal(){ document.getElementById('successModal').classList.remove('open'); }
-async function subscribeNewsletter(){ let email=document.getElementById('newsletterEmail').value; if(!email){ alert('Enter email'); return; }
+
+async function subscribeNewsletter(){ 
+  let email=document.getElementById('newsletterEmail').value; 
+  if(!email){ alert('Enter email'); return; }
   let nlData={type:'newsletter', email:email, timestamp:new Date().toISOString(), notify:'contactdogrifolk@gmail.com'};
-  let scriptURL='https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
+  let scriptURL='https://script.google.com/macros/s/AKfycbxCjQc4W0EYlMntRKO5LSUH1_qZjGfg5GHZ2xvCMuAdNjx6mjrkBC1g81K4J451VNs/exec';
   try{ await fetch(scriptURL,{method:'POST',mode:'no-cors',body:JSON.stringify(nlData)}); }catch(e){}
-  document.getElementById('newsletterMsg').innerHTML='✅ Subscribed! Thank you.'; document.getElementById('newsletterEmail').value='';
+  document.getElementById('newsletterMsg').innerHTML='✅ Subscribed! Thank you.'; 
+  document.getElementById('newsletterEmail').value='';
 }
 window.onclick = (e)=>{ if(e.target===document.getElementById('successModal')) closeModal(); };
 </script>
