@@ -635,7 +635,7 @@ form.addEventListener('submit',async(e)=>{
       notifyEmail: 'contactdogrifolk@gmail.com'
     };
     
-    const scriptURL='https://script.google.com/macros/s/AKfycbxCjQc4W0EYlMntRKO5LSUH1_qZjGfg5GHZ2xvCMuAdNjx6mjrkBC1g81K4J451VNs/exec';
+    const scriptURL='https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
     
     try{ 
       await fetch(scriptURL,{
@@ -664,7 +664,7 @@ async function subscribeNewsletter(){
   let email=document.getElementById('newsletterEmail').value; 
   if(!email){ alert('Enter email'); return; }
   let nlData={type:'newsletter', email:email, timestamp:new Date().toISOString(), notify:'contactdogrifolk@gmail.com'};
-  let scriptURL='https://script.google.com/macros/s/AKfycbxCjQc4W0EYlMntRKO5LSUH1_qZjGfg5GHZ2xvCMuAdNjx6mjrkBC1g81K4J451VNs/exec';
+  let scriptURL='https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
   try{ await fetch(scriptURL,{method:'POST',mode:'no-cors',body:JSON.stringify(nlData)}); }catch(e){}
   document.getElementById('newsletterMsg').innerHTML='✅ Subscribed! Thank you.'; 
   document.getElementById('newsletterEmail').value='';
