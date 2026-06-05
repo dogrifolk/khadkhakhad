@@ -18,7 +18,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com https://rzp.io; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com;">
 
 <!-- Preload -->
 <link rel="preload" href="bookfront.webp" as="image" type="image/webp">
@@ -63,7 +63,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* ========== MAIN STYLES (unchanged - same as before) ========== */
+/* ========== MAIN STYLES ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #fef7e8; font-family: 'Baloo 2', cursive; color: #1f2c3a; }
 :root { --teal-deep: #023b42; --teal: #0c7c8c; --gold: #f5b81b; --orange: #e55c13; }
@@ -246,7 +246,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <div id="shippingFeedback" style="margin-top: 12px; font-size: 0.8rem;"></div>
       </div>
 
-      <!-- EXACT INSTRUCTIONS AS APPROVED (4 steps + green info box + bonus) -->
+      <!-- INSTRUCTIONS (4 steps + green info box + bonus) -->
       <div style="margin-top: 25px; padding: 15px; background: #f0f7f9; border-radius: 16px; border-left: 4px solid var(--gold);">
         <h4 style="color: var(--teal-deep); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
           <i class="fas fa-info-circle"></i> How to Complete Your Order
@@ -266,10 +266,10 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SECURE PAYMENT (disabled until shipping confirmed) -->
+    <!-- RIGHT COLUMN: SECURE PAYMENT (button disabled initially, enabled after shipping) -->
     <div class="qr-card">
       <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> Secure Payment</h3>
-      <button id="razorpayButton" disabled style="opacity: 0.6;"><i class="fas fa-rupee-sign"></i> Pay ₹499 Now</button>
+      <button id="razorpayButton" disabled><i class="fas fa-rupee-sign"></i> Pay ₹499 Now</button>
       <div style="margin-top: 15px; font-size: 0.7rem; opacity: 0.8;">
         <i class="fas fa-credit-card"></i> Cards | UPI | NetBanking | Wallets
       </div>
@@ -349,6 +349,7 @@ function showPopupMessage(msg, isError = false) {
 // Confirm shipping
 const confirmBtn = document.getElementById('confirmShippingBtn');
 const razorpayButton = document.getElementById('razorpayButton');
+const RAZORPAY_LINK = 'https://rzp.io/rzp/IEA67p0P';
 let confirmedShippingData = null;
 
 confirmBtn.addEventListener('click', async () => {
@@ -383,44 +384,18 @@ confirmBtn.addEventListener('click', async () => {
     if (typeof gtag !== 'undefined') gtag('event', 'add_shipping_info');
     document.getElementById('shippingFeedback').innerHTML = '<span style="color:green;">✔ Shipping details confirmed! You can now pay.</span>';
     setTimeout(() => document.getElementById('shippingFeedback').innerHTML = '', 5000);
+    // Enable the payment button
     razorpayButton.disabled = false;
     razorpayButton.style.opacity = '1';
   } catch(e) { showPopupMessage('Network error. Please try again.', true); }
 });
 
-// Razorpay
+// Payment button click handler: only opens link if enabled
 razorpayButton.addEventListener('click', () => {
-  if (razorpayButton.disabled) { showPopupMessage('Please confirm your shipping details first!', true); return; }
-  if (!confirmedShippingData) { showPopupMessage('Please click "CONFIRM SHIPPING DETAILS" first.', true); return; }
-  if (typeof Razorpay === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => openRazorpay();
-    document.head.appendChild(script);
-  } else { openRazorpay(); }
+  if (!razorpayButton.disabled) {
+    window.open(RAZORPAY_LINK, '_blank');
+  }
 });
-
-function openRazorpay() {
-  const options = {
-    key: 'YOUR_RAZORPAY_KEY', // Replace with your live key
-    amount: 49900,
-    currency: 'INR',
-    name: 'खड़ खक्खड़ (Khad Khakhad)',
-    description: 'Dogri Short Stories Book',
-    image: 'bookfront.png',
-    prefill: { name: confirmedShippingData.name, email: confirmedShippingData.email, contact: confirmedShippingData.phone },
-    notes: { address: confirmedShippingData.address, city: confirmedShippingData.city, state: confirmedShippingData.state, pincode: confirmedShippingData.pincode },
-    theme: { color: '#0c7c8c' },
-    handler: function(response) {
-      const orderData = { orderNum: 'KK-' + Date.now(), ...confirmedShippingData, razorpay_payment_id: response.razorpay_payment_id, razorpay_order_id: response.razorpay_order_id, timestamp: new Date().toISOString(), step: 'payment_success' };
-      fetch('https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) }).catch(e=>console.log);
-      if (typeof gtag !== 'undefined') gtag('event', 'purchase', { transaction_id: orderData.orderNum, value: 499, currency: 'INR', items: [{ item_id: 'KK001', item_name: 'खड़ खक्खड़', price: 499, quantity: 1 }] });
-      document.getElementById('modalMsg').innerHTML = `Thank you ${confirmedShippingData.name}! Payment successful. We'll ship your copy soon.`;
-      document.getElementById('successModal').classList.add('open');
-    }
-  };
-  new Razorpay(options).open();
-}
 
 // Newsletter
 async function subscribeNewsletter() {
