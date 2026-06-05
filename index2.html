@@ -795,15 +795,26 @@ footer {
         <div id="formFeedback" role="alert"></div>
       </form>
     </div>
-    <div class="qr-card">
-      <div class="qr-img"><img id="qrCodeImage" src="qr-code.webp" alt="UPI QR code for payment - Scan to pay for Khad Khakhad Dogri book" loading="lazy" width="150" height="150" onerror="this.src='qr-code.png'" style="width:100%;"></div>
-      <div><i class="fas fa-qrcode"></i> QR Code to make payment</div>
-      <div style="background:#fff2cf; color:#023b42; border-radius:40px; padding:5px; margin:12px;">contactdogrifolk@gmail.com</div>
-      <a href="https://wa.me/918287478300" class="whatsapp-link-qr" aria-label="Contact on WhatsApp"><i class="fab fa-whatsapp"></i> +91 82874 78300</a>
-      <div><i class="fas fa-shipping-fast"></i> Fast Delivery · Pan India · Secure Payment</div>
-      <div><i class="fas fa-gift"></i> Premium Packaging + Free Shipping</div>
-    </div>
+    <div class="qr-card" style="background: #023b42; border-radius: 28px; padding: 28px; color: white; text-align: center;">
+  <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> Secure Payment</h3>
+  
+  <form>
+    <script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_Sy19D4d08rE1Pq" async> </script>
+  </form>
+  
+  <div style="margin-top: 15px; font-size: 0.7rem; opacity: 0.8;">
+    <i class="fas fa-credit-card"></i> Cards | UPI | NetBanking | Wallets
   </div>
+  <div style="margin-top: 10px; font-size: 0.7rem;">
+    <i class="fas fa-shield-alt"></i> 100% Secure | Powered by Razorpay
+  </div>
+  <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 0.7rem;">
+    <i class="fas fa-shipping-fast"></i> Fast Delivery · Only India
+  </div>
+  <div style="margin-top: 8px; font-size: 0.7rem;">
+    <i class="fas fa-gift"></i> Premium Packaging + Free Shipping
+  </div>
+</div>
 </section>
 
 <section id="videos" class="videos-dark" aria-labelledby="videos-heading">
