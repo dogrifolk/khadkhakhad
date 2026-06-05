@@ -781,19 +781,44 @@ footer {
 <section id="order-main" style="background:#fdf2e2; padding: 20px 0 60px;" aria-labelledby="order-heading">
   <div class="order-main-grid">
     <div class="author-card"><div class="author-img-circ"><img id="authorImg" src="author-photo.webp" alt="Sumit Khajuria - Jammu writer, Dogra poet, and AIR approved Dogri folk artist" loading="lazy" width="130" height="130" onerror="this.src='author-photo.png'" style="width:100%;"></div><div style="font-size:1.8rem; font-family:'Playfair Display';">Sumit Khajuria</div><p>A lover of Dogri language, folk culture and theatre. Through his debut book <strong>खड़ खक्खड़ (Khad Khakhad)</strong>, he aims to bring the richness of Dogri storytelling to every reader and preserve it for generations.</p><p style="margin-top:12px;">Sumit Khajuria is a well-known <strong>performer, musician, and author</strong> from the Jammu region. He creates popular Dogri music including "<strong>Jammu Tawi</strong>" and is an <strong>All India Radio approved Dogri Folk Artist</strong>. He has performed in numerous events organized by <strong>Jammu Tourism</strong> and the <strong>Information & PR Department, Government of J&K</strong>. His work as a <strong>sarangi player</strong> and <strong>Dogra poet</strong> has made him a prominent voice in Dogri folk culture.</p><div style="font-family:'Kalam'; margin-top:12px;">— Sumit Khajuria (Jammu Writer, Dogra Poet & Dogri Musician)</div></div>
-    <div class="order-card">
-      <h3 id="order-heading"><i class="fas fa-shopping-cart"></i> PLACE YOUR ORDER</h3>
-      <form id="orderForm" aria-label="Book order form">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div class="form-group"><label for="fullName">Full Name *</label><input id="fullName" required maxlength="100" aria-required="true"></div><div class="form-group"><label for="phone">Phone *</label><input id="phone" required maxlength="15" placeholder="+91 XXXXXXXXXX" aria-required="true"></div></div>
-        <div class="form-group"><label for="email">Email</label><input id="email" placeholder="optional" type="email" maxlength="100"></div>
-        <div class="form-group"><label for="address">Full Address *</label><input id="address" required maxlength="200" aria-required="true"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div class="form-group"><label for="city">City *</label><input id="city" required maxlength="50" aria-required="true"></div><div class="form-group"><label for="state">State *</label><input id="state" required maxlength="50" aria-required="true"></div></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div class="form-group"><label for="pincode">PIN Code *</label><input id="pincode" maxlength="6" required pattern="[0-9]{6}" title="Enter 6-digit PIN code" aria-required="true"></div><div class="form-group"><label for="qtySelect">Quantity</label><select id="qtySelect"><option value="1">1 Book - ₹499</option><option value="2">2 Books - ₹990</option><option value="3">3 Books - ₹1480</option><option value="5">5 Books - ₹2400</option></select></div></div>
-        <div class="form-group"><label for="upiRef">UPI Transaction ID *</label><input id="upiRef" placeholder="Enter UPI Ref" required maxlength="100" aria-required="true"></div>
-        <div class="form-group"><label for="screenshotFile">Payment Screenshot * (Max 5MB, JPG/PNG/WEBP)</label><div class="upload-zone">📸 Click to upload screenshot<input type="file" id="screenshotFile" accept="image/jpeg,image/png,image/webp" required aria-required="true"></div><div id="previewDiv" style="font-size:12px; margin-top:5px;"></div></div>
-        <button type="submit" id="orderSubmitBtn" class="btn-order-submit"><i class="fas fa-lock"></i> PLACE ORDER (₹499)</button>
-        <div id="formFeedback" role="alert"></div>
-      </form>
+   <div class="order-card">
+  <h3><i class="fas fa-truck"></i> SHIPPING DETAILS</h3>
+  <form id="orderForm">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group"><label>Full Name *</label><input id="fullName" required maxlength="100"></div>
+      <div class="form-group"><label>Phone *</label><input id="phone" required maxlength="15" placeholder="+91 XXXXXXXXXX"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="email" placeholder="optional" type="email" maxlength="100"></div>
+    <div class="form-group"><label>Full Address *</label><input id="address" required maxlength="200" placeholder="House/Flat No., Street, Locality"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group"><label>City *</label><input id="city" required maxlength="50"></div>
+      <div class="form-group"><label>State *</label><input id="state" required maxlength="50"></div>
+    </div>
+    <div class="form-group"><label>PIN Code *</label><input id="pincode" maxlength="6" required pattern="[0-9]{6}"></div>
+    
+    <button type="submit" id="orderSubmitBtn" class="btn-order-submit" style="background: var(--gold); color: #023b42; width: 100%; padding: 14px; border: none; border-radius: 60px; font-weight: 800; font-size: 1.1rem; cursor: pointer;">
+      <i class="fas fa-check-circle"></i> CONFIRM SHIPPING DETAILS
+    </button>
+    <div id="formFeedback" style="margin-top: 10px; font-size: 0.85rem;"></div>
+  </form>
+  
+  <!-- Instructions for buyer -->
+  <div style="margin-top: 25px; padding: 15px; background: #f0f7f9; border-radius: 16px; border-left: 4px solid var(--gold);">
+    <h4 style="color: var(--teal-deep); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <i class="fas fa-info-circle"></i> How to Complete Your Order
+    </h4>
+    <ul style="margin-left: 20px; color: #3a5a66; line-height: 1.8; font-size: 0.85rem;">
+      <li><strong>Step 1:</strong> Fill in your shipping details above and click <strong>"CONFIRM SHIPPING DETAILS"</strong></li>
+      <li><strong>Step 2:</strong> You will see a confirmation that your address has been saved</li>
+      <li><strong>Step 3:</strong> Go to the <strong>"Secure Payment"</strong> section on the right</li>
+      <li><strong>Step 4:</strong> Click <strong>"Pay ₹499 Now"</strong> and complete payment via Card/UPI/NetBanking</li>
+      <li><strong>Step 5:</strong> After payment, close the tab to return to our store</li>
+      <li><strong>Step 6:</strong> We will ship your signed copy within 2-3 business days!</li>
+    </ul>
+    <div style="margin-top: 12px; padding: 10px; background: #e8f4e8; border-radius: 12px; text-align: center; font-size: 0.8rem;">
+      <i class="fas fa-gift"></i> <strong>Bonus:</strong> Every copy comes signed by author Sumit Khajuria with free premium packaging!
+    </div>
+  </div>
     </div>
     <div class="qr-card" style="background: #023b42; border-radius: 28px; padding: 28px; color: white; text-align: center;">
   <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> Secure Payment</h3>
