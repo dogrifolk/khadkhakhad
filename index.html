@@ -1094,5 +1094,38 @@ async function subscribeNewsletter(){
 }
 window.onclick = (e)=>{ if(e.target===document.getElementById('successModal')) closeModal(); };
 </script>
+<script>
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjDn4/exec';
+
+document.querySelector('.confirm-btn').addEventListener('click', function(e) {
+  e.preventDefault();
+  
+  // This finds all input boxes in your shipping section automatically
+  const inputs = document.querySelectorAll('#order-main input');
+  
+  const formData = {
+    fullName: inputs[0].value,
+    phone: inputs[1].value,
+    email: inputs[2].value,
+    address: inputs[3].value,
+    city: inputs[4].value,
+    state: inputs[5].value,
+    pinCode: inputs[6].value
+  };
+  
+  // 1. Show popup message
+  alert('✓ Your shipping details submitted, now proceed to secure payment and make the payment.');
+  
+  // 2. Send to Google Sheets (which triggers the email)
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData)
+  });
+});
+</script>  
 </body>
 </html>
