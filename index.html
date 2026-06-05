@@ -1094,38 +1094,55 @@ async function subscribeNewsletter(){
 }
 window.onclick = (e)=>{ if(e.target===document.getElementById('successModal')) closeModal(); };
 </script>
-<script>
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjDn4/exec';
+document.addEventListener("DOMContentLoaded", function() {
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjDn4/exec';
 
-document.querySelector('.confirm-btn').addEventListener('click', function(e) {
-  e.preventDefault();
-  
-  // This finds all input boxes in your shipping section automatically
-  const inputs = document.querySelectorAll('#order-main input');
-  
-  const formData = {
-    fullName: inputs[0].value,
-    phone: inputs[1].value,
-    email: inputs[2].value,
-    address: inputs[3].value,
-    city: inputs[4].value,
-    state: inputs[5].value,
-    pinCode: inputs[6].value
-  };
-  
-  // 1. Show popup message
-  alert('✓ Your shipping details submitted, now proceed to secure payment and make the payment.');
-  
-  // 2. Send to Google Sheets (which triggers the email)
-  fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData)
-  });
+    // 1. Find the button by its text content
+    const allButtons = document.querySelectorAll('button, input[type="button"], input[type="submit"], a');
+    let confirmBtn = null;
+    
+    for (let btn of allButtons) {
+        if (btn.innerText && btn.innerText.toUpperCase().includes('CONFIRM SHIPPING DETAILS')) {
+            confirmBtn = btn;
+            break;
+        }
+    }
+
+    // 2. If button is found, add the click event
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Find the section containing the button and get all visible inputs
+            const section = confirmBtn.closest('section, div, form') || document.getElementById('order-main');
+            const inputs = section.querySelectorAll('input:not([type="hidden"])');
+            
+            // Map the inputs to your data (Adjust indices if your form order is different)
+            const formData = {
+                fullName: inputs[0] ? inputs[0].value : '',
+                phone: inputs[1] ? inputs[1].value : '',
+                email: inputs[2] ? inputs[2].value : '',
+                address: inputs[3] ? inputs[3].value : '',
+                city: inputs[4] ? inputs[4].value : '',
+                state: inputs[5] ? inputs[5].value : '',
+                pinCode: inputs[6] ? inputs[6].value : ''
+            };
+            
+            // Show popup message
+            alert('✓ Your shipping details submitted, now proceed to secure payment and make the payment.');
+            
+            // Send to Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+        });
+    } else {
+        console.error("Could not find the 'Confirm Shipping Details' button.");
+    }
 });
-</script>  
+</script>
 </body>
 </html>
