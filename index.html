@@ -116,9 +116,8 @@ nav { background: var(--teal-deep); border-bottom: 4px solid var(--gold); positi
 .btn-order-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
 .btn-order-submit:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 #razorpayButton { transition: all 0.2s ease; cursor: pointer; background: #f5b81b; color: #023b42; display: block; width: 100%; padding: 14px 20px; border-radius: 60px; border: none; font-weight: 800; font-size: 1.1rem; text-align: center; margin: 10px 0; }
-#razorpayButton:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-#razorpayButton:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-#razorpayButton:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+#razorpayButton:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+#razorpayButton:active { transform: translateY(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .videos-dark { background: #0b1c22; padding: 70px 24px; }
 .videos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; max-width: 1250px; margin: 0 auto; }
 .video-card { background: #132b35; border-radius: 24px; overflow: hidden; }
@@ -266,10 +265,10 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SECURE PAYMENT (button disabled initially, enabled after shipping) -->
+    <!-- RIGHT COLUMN: SECURE PAYMENT (always active, but shows reminder if clicked before shipping confirmation) -->
     <div class="qr-card">
       <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> Secure Payment</h3>
-      <button id="razorpayButton" disabled><i class="fas fa-rupee-sign"></i> Pay ₹499 Now</button>
+      <button id="razorpayButton"><i class="fas fa-rupee-sign"></i> Pay ₹499 Now</button>
       <div style="margin-top: 15px; font-size: 0.7rem; opacity: 0.8;">
         <i class="fas fa-credit-card"></i> Cards | UPI | NetBanking | Wallets
       </div>
@@ -350,7 +349,7 @@ function showPopupMessage(msg, isError = false) {
 const confirmBtn = document.getElementById('confirmShippingBtn');
 const razorpayButton = document.getElementById('razorpayButton');
 const RAZORPAY_LINK = 'https://rzp.io/rzp/IEA67p0P';
-let confirmedShippingData = null;
+let shippingConfirmed = false;
 
 confirmBtn.addEventListener('click', async () => {
   const name = sanitizeInput(document.getElementById('fullName').value);
@@ -369,11 +368,11 @@ confirmBtn.addEventListener('click', async () => {
   if (!state) { showPopupMessage('Please enter your state.', true); return; }
   if (!pincode || !isValidPin(pincode)) { showPopupMessage('Enter a valid 6-digit PIN code.', true); return; }
 
-  confirmedShippingData = { name, phone, email, address, city, state, pincode };
+  const shippingData = { name, phone, email, address, city, state, pincode };
   const payload = {
     step: 'shipping',
     orderNum: 'SHIP-' + Date.now(),
-    ...confirmedShippingData,
+    ...shippingData,
     timestamp: new Date().toISOString(),
     notifyEmail: 'contactdogrifolk@gmail.com'
   };
@@ -384,15 +383,15 @@ confirmBtn.addEventListener('click', async () => {
     if (typeof gtag !== 'undefined') gtag('event', 'add_shipping_info');
     document.getElementById('shippingFeedback').innerHTML = '<span style="color:green;">✔ Shipping details confirmed! You can now pay.</span>';
     setTimeout(() => document.getElementById('shippingFeedback').innerHTML = '', 5000);
-    // Enable the payment button
-    razorpayButton.disabled = false;
-    razorpayButton.style.opacity = '1';
+    shippingConfirmed = true;
   } catch(e) { showPopupMessage('Network error. Please try again.', true); }
 });
 
-// Payment button click handler: only opens link if enabled
+// Payment button click handler: show reminder if shipping not confirmed, else open link
 razorpayButton.addEventListener('click', () => {
-  if (!razorpayButton.disabled) {
+  if (!shippingConfirmed) {
+    showPopupMessage('📦 First fill in the shipping details for the book, then you can proceed to making payment.', false);
+  } else {
     window.open(RAZORPAY_LINK, '_blank');
   }
 });
