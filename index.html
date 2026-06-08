@@ -458,7 +458,6 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 <div id="successModal" class="modal-bg">
   <div class="modal-card"><i class="fas fa-check-circle" style="font-size:3rem; color:#0f6b77;"></i><h3>🎉 Order Confirmed!</h3><p id="modalMsg">Thank you! Your order has been recorded.</p><button onclick="closeModal()" style="background:var(--gold); padding:8px 32px; border-radius:40px;">OK</button></div>
 </div>
-
 <script>
 // ========== 1. MOBILE MENU ==========
 const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -563,7 +562,7 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED (JSONP – reliable, no proxy) ==========
+// ========== 5. LIVE FEED (hardcoded callback name) ==========
 const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
@@ -590,52 +589,45 @@ function formatTimeAgo(timestamp) {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 }
 
+// Global callback function – must be named exactly as the script expects
+window.handleFeedResponse = function(entries) {
+  if (!entries || !entries.length) {
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
+    return;
+  }
+  let html = '';
+  for (let item of entries) {
+    const icon = item.type === 'order' ? '📚' : '⭐';
+    html += `
+      <div class="feed-item">
+        <div class="feed-icon">${icon}</div>
+        <div class="feed-text">${escapeHtml(item.text)}</div>
+        <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
+      </div>
+    `;
+  }
+  feedContainer.innerHTML = html;
+};
+
 function loadLiveFeed() {
   if (!feedContainer) return;
-  // Show loading state
   feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>';
   
-  // Create a unique callback name for this request
-  const callbackName = 'jsonp_cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-  
-  // Define the callback function globally
-  window[callbackName] = function(entries) {
-    if (!entries || !entries.length) {
-      feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
-    } else {
-      let html = '';
-      for (let item of entries) {
-        const icon = item.type === 'order' ? '📚' : '⭐';
-        html += `
-          <div class="feed-item">
-            <div class="feed-icon">${icon}</div>
-            <div class="feed-text">${escapeHtml(item.text)}</div>
-            <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
-          </div>
-        `;
-      }
-      feedContainer.innerHTML = html;
-    }
-    // Clean up the global function to avoid memory leaks
-    delete window[callbackName];
-  };
-  
-  // Remove any previous script tag to avoid duplicates
+  // Remove any previous script tag
   const oldScript = document.getElementById('jsonp-script');
   if (oldScript) oldScript.remove();
   
-  // Create and inject the script tag
+  // Create new script tag with the known callback parameter
   const script = document.createElement('script');
   script.id = 'jsonp-script';
-  script.src = `${FEED_URL}?callback=${callbackName}&t=${Date.now()}`;
+  script.src = `${FEED_URL}?callback=handleFeedResponse&t=${Date.now()}`;
   script.onerror = function() {
     feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Failed to load feed. Please refresh.</div></div>';
-    delete window[callbackName];
   };
   document.head.appendChild(script);
 }
 
-// Load feed immediately and refresh every 30 seconds
+// Load feed on page load and refresh every 30 seconds
 loadLiveFeed();
 setInterval(loadLiveFeed, 30000);
 
