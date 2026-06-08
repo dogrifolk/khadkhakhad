@@ -12,7 +12,7 @@
 <meta name="geo.region" content="IN-JK">
 <meta name="geo.placename" content="Jammu">
 
-<!-- Performance & Security -->
+<!-- Performance & Security (unchanged, but CSP includes corsproxy.io) -->
 <meta http-equiv="Cache-Control" content="max-age=86400, public">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
@@ -63,7 +63,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* ========== MAIN STYLES ========== */
+/* ========== MAIN STYLES (unchanged except feed section) ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #fef7e8; font-family: 'Baloo 2', cursive; color: #1f2c3a; }
 :root { --teal-deep: #023b42; --teal: #0c7c8c; --gold: #f5b81b; --orange: #e55c13; }
@@ -152,10 +152,10 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 .popup-message { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #023b42; color: #ffefcf; padding: 12px 24px; border-radius: 50px; font-weight: bold; z-index: 10000; animation: fadeOut 3s forwards; }
 @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
 
-/* Live Activity Feed and Review Form styles */
+/* ========== LIVE FEED COMPACT STYLES ========== */
 .live-feed {
   margin-top: 25px;
-  padding: 15px;
+  padding: 12px;  /* reduced from 15px */
   background: rgba(255,255,255,0.08);
   border-radius: 16px;
   border-left: 3px solid var(--gold);
@@ -163,36 +163,40 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 }
 .live-feed h4 {
   font-family: 'Oswald', sans-serif;
-  font-size: 0.9rem;
-  margin-bottom: 12px;
+  font-size: 0.8rem;  /* smaller heading */
+  margin-bottom: 8px;
   color: var(--gold);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .feed-item {
-  font-size: 0.7rem;
-  padding: 8px 0;
+  font-size: 0.65rem;  /* smaller text */
+  padding: 6px 0;      /* reduced padding */
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 6px;
 }
 .feed-item:last-child {
   border-bottom: none;
 }
 .feed-icon {
-  font-size: 0.8rem;
-  min-width: 24px;
+  font-size: 0.7rem;
+  min-width: 20px;
+  margin-top: 2px;
 }
 .feed-text {
   flex: 1;
-  line-height: 1.4;
+  line-height: 1.35;
+  word-break: break-word;
 }
 .feed-time {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   opacity: 0.6;
   white-space: nowrap;
+  margin-left: 6px;
+  margin-top: 2px;
 }
 
 .review-form {
@@ -308,7 +312,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       <div style="font-family:'Kalam'; margin-top:12px;">— Sumit Khajuria (Jammu Writer, Dogra Poet & Dogri Musician)</div>
     </div>
 
-    <!-- MIDDLE COLUMN: SHIPPING DETAILS -->
+    <!-- MIDDLE COLUMN: SHIPPING DETAILS (unchanged) -->
     <div class="order-card">
       <h3><i class="fas fa-truck"></i> SHIPPING DETAILS</h3>
       <div>
@@ -373,7 +377,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <i class="fas fa-info-circle"></i> After payment, simply close this tab to return
       </div>
 
-      <!-- === LIVE ACTIVITY FEED (using corsproxy.io) === -->
+      <!-- === LIVE ACTIVITY FEED (compact layout) === -->
       <div class="live-feed" id="liveFeedContainer">
         <h4><i class="fas fa-bolt"></i> Live Activity</h4>
         <div id="feedList">
@@ -563,7 +567,7 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED (corsproxy.io – reliable) ==========
+// ========== 5. LIVE FEED (corsproxy.io) with improved formatting ==========
 const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
@@ -590,6 +594,36 @@ function formatTimeAgo(timestamp) {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 }
 
+// Reformat review text: move stars after the comment
+function reformatReviewText(originalText) {
+  // Pattern: "Name from City rated: ⭐⭐⭐⭐⭐ "comment""
+  // We'll extract the comment and stars, then reorder.
+  const starMatch = originalText.match(/(⭐+)/);
+  if (!starMatch) return originalText; // not a review
+  const stars = starMatch[1];
+  // Remove the stars and the preceding "rated: " and following space
+  let commentPart = originalText.replace(/rated: /, '').replace(stars, '').trim();
+  // Remove any extra quotes if present
+  commentPart = commentPart.replace(/^["']|["']$/g, '');
+  // Return new format: comment then stars
+  return `${commentPart} ${stars}`;
+}
+
+function formatFeedItem(item) {
+  let displayText = '';
+  let icon = '🔔'; // default live feed icon
+  if (item.type === 'order') {
+    displayText = item.text; // already "Name from City ordered a copy 📚"
+    icon = '📢';
+  } else if (item.type === 'review') {
+    displayText = reformatReviewText(item.text);
+    icon = '💬';
+  } else {
+    displayText = item.text;
+  }
+  return { text: displayText, icon: icon };
+}
+
 async function loadLiveFeed() {
   if (!feedContainer) return;
   feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>';
@@ -597,7 +631,7 @@ async function loadLiveFeed() {
   try {
     const response = await fetch(proxyUrl);
     let text = await response.text();
-    // Remove JSONP wrapper (e.g., 'ignore([...])' or 'handleFeedResponse([...])')
+    // Remove JSONP wrapper
     text = text.replace(/^\s*[\w\d_]+\s*\(/, '').replace(/\);?\s*$/, '');
     const entries = JSON.parse(text);
     if (!entries || !entries.length) {
@@ -606,11 +640,11 @@ async function loadLiveFeed() {
     }
     let html = '';
     for (let item of entries) {
-      const icon = item.type === 'order' ? '📚' : '⭐';
+      const { text: displayText, icon } = formatFeedItem(item);
       html += `
         <div class="feed-item">
           <div class="feed-icon">${icon}</div>
-          <div class="feed-text">${escapeHtml(item.text)}</div>
+          <div class="feed-text">${escapeHtml(displayText)}</div>
           <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
         </div>
       `;
