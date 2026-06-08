@@ -18,7 +18,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com https://corsproxy.io;">
 
 <!-- Preload -->
 <link rel="preload" href="bookfront.webp" as="image" type="image/webp">
@@ -150,6 +150,70 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 .modal-card { background: white; border-radius: 36px; padding: 32px; max-width: 420px; text-align: center; }
 .popup-message { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #023b42; color: #ffefcf; padding: 12px 24px; border-radius: 50px; font-weight: bold; z-index: 10000; animation: fadeOut 3s forwards; }
 @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+/* ========== LIVE FEED COMPACT STYLES ========== */
+.live-feed {
+  margin-top: 25px;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  border-left: 3px solid var(--gold);
+  text-align: left;
+}
+.live-feed h4 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feed-item {
+  font-size: 0.65rem;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.feed-item:last-child {
+  border-bottom: none;
+}
+.feed-icon {
+  font-size: 0.7rem;
+  min-width: 20px;
+  margin-top: 2px;
+}
+.feed-text {
+  flex: 1;
+  line-height: 1.35;
+  word-break: break-word;
+}
+.feed-time {
+  font-size: 0.55rem;
+  opacity: 0.6;
+  white-space: nowrap;
+  margin-left: 6px;
+  margin-top: 2px;
+}
+
+.review-form {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+.review-form input, .review-form select, .review-form textarea {
+  font-family: 'Baloo 2', cursive;
+}
+.review-form button {
+  transition: all 0.2s;
+}
+.review-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 @media (max-width: 768px) { button, .btn-gold, .btn-outline-white, .order-nav-btn, .lang-switch-btn, .btn-order-submit, .hamburger { min-height: 48px; min-width: 48px; } }
 @media (max-width: 900px) { .nav-links { display: none; } .hamburger { display: flex; } .hero-grid, .reviews-newspaper-grid, .order-main-grid, .videos-grid, .footer-grid, .feature-strip { grid-template-columns: 1fr; } .square-review { flex-direction: column; text-align: center; } .review-paper-card { flex-direction: column; align-items: center; text-align: center; } }
 </style>
@@ -285,7 +349,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SECURE PAYMENT -->
+    <!-- RIGHT COLUMN: SECURE PAYMENT + LIVE FEED + REVIEW FORM -->
     <div class="qr-card">
       <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> सुरक्खत भुगतान</h3>
       <button id="razorpayButton"><i class="fas fa-rupee-sign"></i> हुन ₹499 दा भुगतान करो</button>
@@ -309,6 +373,41 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
       <div style="margin-top: 15px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.7rem;">
         <i class="fas fa-info-circle"></i> भुगतान दे बाह्द, परतौने तांई बस अगला टैब बंद करो ते इत्थैं बापस आओ
+      </div>
+
+      <!-- === LIVE ACTIVITY FEED === -->
+      <div class="live-feed" id="liveFeedContainer">
+        <h4><i class="fas fa-bolt"></i> लाइव गतिविधि</h4>
+        <div id="feedList">
+          <div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">लोड होरया ऐ...</div></div>
+        </div>
+      </div>
+
+      <!-- === REVIEW SUBMISSION FORM (auto‑populated from shipping) === -->
+      <div class="review-form">
+        <h4 style="font-family: 'Oswald', sans-serif; font-size: 0.85rem; margin-bottom: 10px; color: var(--gold);">
+          <i class="fas fa-star"></i> अपना अनुभव सांझा करो
+        </h4>
+        <form id="reviewForm">
+          <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+            <input type="text" id="reviewName" placeholder="तुंदा नांऽ *" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+            <input type="text" id="reviewCity" placeholder="शैहर *" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+          </div>
+          <div style="margin-bottom: 8px;">
+            <select id="reviewRating" style="width: 100%; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+              <option value="5">⭐⭐⭐⭐⭐ - बढ़िया</option>
+              <option value="4">⭐⭐⭐⭐ - चंगा</option>
+              <option value="3">⭐⭐⭐ - ठीक ऐ</option>
+              <option value="2">⭐⭐ - ढुल्ला</option>
+              <option value="1">⭐ - मंदा</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <textarea id="reviewText" rows="2" placeholder="तुंदी समीक्षा ... (optional)" style="width: 100%; padding: 8px; border-radius: 16px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; resize: vertical; font-family: inherit;"></textarea>
+          </div>
+          <button type="submit" style="background: var(--gold); color: #023b42; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; cursor: pointer; width: 100%; transition: all 0.2s;">समीक्षा भेजो</button>
+          <div id="reviewFormFeedback" style="font-size: 0.65rem; margin-top: 6px; text-align: center;"></div>
+        </form>
       </div>
     </div>
   </div>
@@ -465,6 +564,158 @@ async function subscribeNewsletter() {
 }
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
+
+// ========== LIVE FEED (corsproxy.io) ==========
+const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
+const feedContainer = document.getElementById('feedList');
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins} मिनट पैह्ले`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} घंटे पैह्ले`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} दिन पैह्ले`;
+}
+
+function reformatReviewText(originalText) {
+  const starMatch = originalText.match(/(⭐+)/);
+  if (!starMatch) return originalText;
+  const stars = starMatch[1];
+  let commentPart = originalText.replace(/rated: /, '').replace(stars, '').trim();
+  commentPart = commentPart.replace(/^["']|["']$/g, '');
+  return `${commentPart} ${stars}`;
+}
+
+function formatFeedItem(item) {
+  let displayText = '';
+  let icon = '🔔';
+  if (item.type === 'order') {
+    displayText = item.text;
+    icon = '📢';
+  } else if (item.type === 'review') {
+    displayText = reformatReviewText(item.text);
+    icon = '💬';
+  } else {
+    displayText = item.text;
+  }
+  return { text: displayText, icon: icon };
+}
+
+async function loadLiveFeed() {
+  if (!feedContainer) return;
+  feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">लोड होरया ऐ...</div></div>';
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(FEED_URL + '?callback=ignore');
+  try {
+    const response = await fetch(proxyUrl);
+    let text = await response.text();
+    text = text.replace(/^\s*[\w\d_]+\s*\(/, '').replace(/\);?\s*$/, '');
+    const entries = JSON.parse(text);
+    if (!entries || !entries.length) {
+      feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">अजै तक गतिविधि नेईं। पैह्ले ऑर्डर करो!</div></div>';
+      return;
+    }
+    let html = '';
+    for (let item of entries) {
+      const { text: displayText, icon } = formatFeedItem(item);
+      html += `
+        <div class="feed-item">
+          <div class="feed-icon">${icon}</div>
+          <div class="feed-text">${escapeHtml(displayText)}</div>
+          <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
+        </div>
+      `;
+    }
+    feedContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Feed error:', error);
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">फीड नेईं लदी। किरपा करी बाद च कोशिश करो।</div></div>';
+  }
+}
+
+loadLiveFeed();
+setInterval(loadLiveFeed, 30000);
+
+// ========== AUTO‑POPULATE REVIEW FORM FROM SHIPPING DETAILS ==========
+const fullNameInput = document.getElementById('fullName');
+const cityInput = document.getElementById('city');
+const reviewNameInput = document.getElementById('reviewName');
+const reviewCityInput = document.getElementById('reviewCity');
+
+function syncReviewFields() {
+  if (fullNameInput.value && reviewNameInput.value === '') {
+    reviewNameInput.value = fullNameInput.value;
+  }
+  if (cityInput.value && reviewCityInput.value === '') {
+    reviewCityInput.value = cityInput.value;
+  }
+}
+
+fullNameInput.addEventListener('input', syncReviewFields);
+cityInput.addEventListener('input', syncReviewFields);
+syncReviewFields();
+
+// ========== REVIEW SUBMISSION ==========
+const reviewForm = document.getElementById('reviewForm');
+if (reviewForm) {
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = reviewNameInput.value.trim();
+    const city = reviewCityInput.value.trim();
+    const rating = document.getElementById('reviewRating').value;
+    const reviewText = document.getElementById('reviewText').value.trim();
+    
+    if (!name || !city) {
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#ffcccc;">किरपा अपना नांऽ ते शैहर दर्ज करो।</span>';
+      return;
+    }
+    
+    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भेजिया जा रया ऐ...';
+    
+    const payload = {
+      type: 'review_submission',
+      name: name,
+      city: city,
+      rating: rating,
+      reviewText: reviewText
+    };
+    
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
+    try {
+      await fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#aaffaa;">✅ धन्यवाद! तुंदी समीक्षा मंजूरी बाह्द दिखेगी।</span>';
+      reviewForm.reset();
+      syncReviewFields(); // re‑sync after reset (shipping details still there)
+    } catch (err) {
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#ffcccc;">गलती होई। बाद च कोशिश करो।</span>';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'समीक्षा भेजो';
+      setTimeout(() => document.getElementById('reviewFormFeedback').innerHTML = '', 5000);
+    }
+  });
+}
 </script>
 </body>
 </html>
