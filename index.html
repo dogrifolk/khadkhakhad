@@ -151,6 +151,66 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 .modal-card { background: white; border-radius: 36px; padding: 32px; max-width: 420px; text-align: center; }
 .popup-message { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #023b42; color: #ffefcf; padding: 12px 24px; border-radius: 50px; font-weight: bold; z-index: 10000; animation: fadeOut 3s forwards; }
 @keyframes fadeOut { 0% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+/* Live Activity Feed and Review Form styles */
+.live-feed {
+  margin-top: 25px;
+  padding: 15px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  border-left: 3px solid var(--gold);
+  text-align: left;
+}
+.live-feed h4 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feed-item {
+  font-size: 0.7rem;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feed-item:last-child {
+  border-bottom: none;
+}
+.feed-icon {
+  font-size: 0.8rem;
+  min-width: 24px;
+}
+.feed-text {
+  flex: 1;
+  line-height: 1.4;
+}
+.feed-time {
+  font-size: 0.6rem;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.review-form {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+.review-form input, .review-form select, .review-form textarea {
+  font-family: 'Baloo 2', cursive;
+}
+.review-form button {
+  transition: all 0.2s;
+}
+.review-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 @media (max-width: 768px) { button, .btn-gold, .btn-outline-white, .order-nav-btn, .lang-switch-btn, .btn-order-submit, .hamburger { min-height: 48px; min-width: 48px; } }
 @media (max-width: 900px) { .nav-links { display: none; } .hamburger { display: flex; } .hero-grid, .reviews-newspaper-grid, .order-main-grid, .videos-grid, .footer-grid, .feature-strip { grid-template-columns: 1fr; } .square-review { flex-direction: column; text-align: center; } .review-paper-card { flex-direction: column; align-items: center; text-align: center; } }
 </style>
@@ -287,7 +347,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: SECURE PAYMENT -->
+    <!-- RIGHT COLUMN: SECURE PAYMENT + LIVE FEED + REVIEW FORM -->
     <div class="qr-card">
       <h3 style="color: #f5b81b; margin-bottom: 15px; font-size: 1.3rem;"><i class="fas fa-lock"></i> Secure Payment</h3>
       <button id="razorpayButton"><i class="fas fa-rupee-sign"></i> Pay ₹499 Now</button>
@@ -311,6 +371,41 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       </div>
       <div style="margin-top: 15px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.7rem;">
         <i class="fas fa-info-circle"></i> After payment, simply close this tab to return
+      </div>
+
+      <!-- === LIVE ACTIVITY FEED === -->
+      <div class="live-feed" id="liveFeedContainer">
+        <h4><i class="fas fa-bolt"></i> Live Activity</h4>
+        <div id="feedList">
+          <div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>
+        </div>
+      </div>
+
+      <!-- === REVIEW SUBMISSION FORM === -->
+      <div class="review-form">
+        <h4 style="font-family: 'Oswald', sans-serif; font-size: 0.85rem; margin-bottom: 10px; color: var(--gold);">
+          <i class="fas fa-star"></i> Share Your Experience
+        </h4>
+        <form id="reviewForm">
+          <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+            <input type="text" id="reviewName" placeholder="Your Name *" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+            <input type="text" id="reviewCity" placeholder="City *" style="flex:1; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+          </div>
+          <div style="margin-bottom: 8px;">
+            <select id="reviewRating" style="width: 100%; padding: 8px; border-radius: 20px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; font-family: inherit;">
+              <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+              <option value="4">⭐⭐⭐⭐ - Very Good</option>
+              <option value="3">⭐⭐⭐ - Good</option>
+              <option value="2">⭐⭐ - Fair</option>
+              <option value="1">⭐ - Poor</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <textarea id="reviewText" rows="2" placeholder="Your review... (optional)" style="width: 100%; padding: 8px; border-radius: 16px; border: none; background: rgba(255,255,255,0.9); font-size: 0.7rem; resize: vertical; font-family: inherit;"></textarea>
+          </div>
+          <button type="submit" style="background: var(--gold); color: #023b42; border: none; padding: 8px 16px; border-radius: 40px; font-weight: 700; font-size: 0.7rem; cursor: pointer; width: 100%; transition: all 0.2s;">Submit Review</button>
+          <div id="reviewFormFeedback" style="font-size: 0.65rem; margin-top: 6px; text-align: center;"></div>
+        </form>
       </div>
     </div>
   </div>
@@ -427,7 +522,7 @@ confirmBtn.addEventListener('click', async () => {
     timestamp: new Date().toISOString(),
     notifyEmail: 'contactdogrifolk@gmail.com'
   };
-  const scriptURL = 'https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
   
   try {
     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -460,13 +555,121 @@ async function subscribeNewsletter() {
   if (!isValidEmail(email)) { alert('Valid email required'); return; }
   if (typeof gtag !== 'undefined') gtag('event', 'subscribe');
   let nlData = { type: 'newsletter', email: email.substring(0,100), timestamp: new Date().toISOString(), notify: 'contactdogrifolk@gmail.com' };
-  await fetch('https://script.google.com/macros/s/AKfycby8TV37z7bB67nvIuUlPBGhULT3fwyLH-mbEyTD6m3gy3SaOi0rN_ibiTwjhAZjD4n4/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
+  await fetch('https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
   document.getElementById('newsletterMsg').innerHTML = '✅ Subscribed! Thank you.';
   document.getElementById('newsletterEmail').value = '';
   setTimeout(() => document.getElementById('newsletterMsg').innerHTML = '', 3000);
 }
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
+
+// ========== LIVE ACTIVITY FEED ==========
+const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
+const feedContainer = document.getElementById('feedList');
+
+async function loadLiveFeed() {
+  if (!FEED_API_URL) {
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Feed not configured.</div></div>';
+    return;
+  }
+  try {
+    const response = await fetch(FEED_API_URL);
+    const entries = await response.json();
+    if (!entries.length) {
+      feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
+      return;
+    }
+    let html = '';
+    for (let item of entries) {
+      const icon = item.type === 'order' ? '📚' : '⭐';
+      html += `
+        <div class="feed-item">
+          <div class="feed-icon">${icon}</div>
+          <div class="feed-text">${escapeHtml(item.text)}</div>
+          <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
+        </div>
+      `;
+    }
+    feedContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Failed to load live feed:', error);
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Unable to load feed. Please try again later.</div></div>';
+  }
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins} min ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+}
+
+// ========== REVIEW SUBMISSION HANDLER ==========
+const reviewForm = document.getElementById('reviewForm');
+if (reviewForm) {
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('reviewName').value.trim();
+    const city = document.getElementById('reviewCity').value.trim();
+    const rating = document.getElementById('reviewRating').value;
+    const reviewText = document.getElementById('reviewText').value.trim();
+    
+    if (!name || !city) {
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#ffcccc;">Please enter your name and city.</span>';
+      return;
+    }
+    
+    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    
+    const payload = {
+      type: 'review_submission',
+      name: name,
+      city: city,
+      rating: rating,
+      reviewText: reviewText
+    };
+    
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
+    try {
+      await fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#aaffaa;">✅ Thank you! Your review will appear after moderation.</span>';
+      reviewForm.reset();
+    } catch (err) {
+      document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#ffcccc;">Error. Please try again later.</span>';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Submit Review';
+      setTimeout(() => document.getElementById('reviewFormFeedback').innerHTML = '', 5000);
+    }
+  });
+}
+
+// Load feed on page load and refresh every 30 seconds
+loadLiveFeed();
+setInterval(loadLiveFeed, 30000);
 </script>
 </body>
 </html>
