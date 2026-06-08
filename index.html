@@ -563,8 +563,10 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED FUNCTIONS ==========
-// Helper: escape HTML
+// ========== 5. LIVE FEED (using CORS proxy) ==========
+const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
+const feedContainer = document.getElementById('feedList');
+
 function escapeHtml(str) {
   return str.replace(/[&<>]/g, function(m) {
     if (m === '&') return '&amp;';
@@ -574,7 +576,6 @@ function escapeHtml(str) {
   });
 }
 
-// Helper: format time ago
 function formatTimeAgo(timestamp) {
   if (!timestamp) return '';
   const date = new Date(timestamp);
@@ -589,50 +590,38 @@ function formatTimeAgo(timestamp) {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 }
 
-// Global callback for JSONP (must be defined before any feed loads)
-window.handleFeedResponse = function(entries) {
-  const feedContainer = document.getElementById('feedList');
-  if (!feedContainer) return;
-  if (!entries || !entries.length) {
-    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
-    return;
-  }
-  let html = '';
-  for (let item of entries) {
-    const icon = item.type === 'order' ? '📚' : '⭐';
-    html += `
-      <div class="feed-item">
-        <div class="feed-icon">${icon}</div>
-        <div class="feed-text">${escapeHtml(item.text)}</div>
-        <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
-      </div>
-    `;
-  }
-  feedContainer.innerHTML = html;
-};
-
-const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
-const feedContainer = document.getElementById('feedList');
-
-function loadLiveFeed() {
+async function loadLiveFeed() {
   if (!feedContainer) return;
   feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>';
   
-  // Remove any existing script tag to avoid duplicates
-  const oldScript = document.getElementById('jsonp-script');
-  if (oldScript) oldScript.remove();
-  
-  // Create new script tag with JSONP callback
-  const script = document.createElement('script');
-  script.id = 'jsonp-script';
-  script.src = `${FEED_API_URL}?callback=handleFeedResponse&t=${Date.now()}`;
-  script.onerror = function() {
-    if (feedContainer) feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Failed to load feed. Please refresh.</div></div>';
-  };
-  document.head.appendChild(script);
+  // Use a public CORS proxy to fetch the feed as JSON
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+  try {
+    const response = await fetch(proxyUrl + FEED_URL);
+    const entries = await response.json();
+    if (!entries || !entries.length) {
+      feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
+      return;
+    }
+    let html = '';
+    for (let item of entries) {
+      const icon = item.type === 'order' ? '📚' : '⭐';
+      html += `
+        <div class="feed-item">
+          <div class="feed-icon">${icon}</div>
+          <div class="feed-text">${escapeHtml(item.text)}</div>
+          <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
+        </div>
+      `;
+    }
+    feedContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Feed error:', error);
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Unable to load feed. Please refresh or try again later.</div></div>';
+  }
 }
 
-// Load feed immediately and refresh every 30 seconds
+// Load feed on page load and refresh every 30 seconds
 loadLiveFeed();
 setInterval(loadLiveFeed, 30000);
 
