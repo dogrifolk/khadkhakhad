@@ -564,7 +564,7 @@ function closeModal() { document.getElementById('successModal').classList.remove
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
 // ========== LIVE ACTIVITY FEED ==========
-const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
+const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbx1oxYoDiC80-w5KhFBnO-8N6Sw-LsFbgNSU1L9u3NaEXhR0eNXpQqHEkHMnUBVWXdQ/exec';
 const feedContainer = document.getElementById('feedList');
 
 async function loadLiveFeed() {
@@ -647,7 +647,7 @@ if (reviewForm) {
       reviewText: reviewText
     };
     
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx1oxYoDiC80-w5KhFBnO-8N6Sw-LsFbgNSU1L9u3NaEXhR0eNXpQqHEkHMnUBVWXdQ/exec';
     try {
       await fetch(scriptURL, {
         method: 'POST',
