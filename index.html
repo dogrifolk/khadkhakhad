@@ -18,7 +18,7 @@
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com https://api.allorigins.win;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://www.youtube.com; img-src 'self' data:; connect-src 'self' https://script.google.com https://www.google-analytics.com https://corsproxy.io;">
 
 <!-- Preload -->
 <link rel="preload" href="bookfront.webp" as="image" type="image/webp">
@@ -373,7 +373,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <i class="fas fa-info-circle"></i> After payment, simply close this tab to return
       </div>
 
-      <!-- === LIVE ACTIVITY FEED === -->
+      <!-- === LIVE ACTIVITY FEED (using corsproxy.io) === -->
       <div class="live-feed" id="liveFeedContainer">
         <h4><i class="fas fa-bolt"></i> Live Activity</h4>
         <div id="feedList">
@@ -563,7 +563,7 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED (CORS proxy using api.allorigins.win) ==========
+// ========== 5. LIVE FEED (corsproxy.io – reliable) ==========
 const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
@@ -593,12 +593,13 @@ function formatTimeAgo(timestamp) {
 async function loadLiveFeed() {
   if (!feedContainer) return;
   feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>';
-  const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(FEED_URL);
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(FEED_URL + '?callback=ignore');
   try {
     const response = await fetch(proxyUrl);
-    const data = await response.json();
-    // The actual JSON is inside data.contents
-    const entries = JSON.parse(data.contents);
+    let text = await response.text();
+    // Remove JSONP wrapper (e.g., 'ignore([...])' or 'handleFeedResponse([...])')
+    text = text.replace(/^\s*[\w\d_]+\s*\(/, '').replace(/\);?\s*$/, '');
+    const entries = JSON.parse(text);
     if (!entries || !entries.length) {
       feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
       return;
