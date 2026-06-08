@@ -385,7 +385,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         </div>
       </div>
 
-      <!-- REVIEW SUBMISSION FORM -->
+      <!-- REVIEW SUBMISSION FORM (auto‑populated from shipping details) -->
       <div class="review-form">
         <h4 style="font-family: 'Oswald', sans-serif; font-size: 0.85rem; margin-bottom: 10px; color: var(--gold);">
           <i class="fas fa-star"></i> Share Your Experience
@@ -567,7 +567,7 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED (corsproxy.io – working) ==========
+// ========== 5. LIVE FEED (corsproxy.io – working, random on server side) ==========
 const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
@@ -649,16 +649,39 @@ async function loadLiveFeed() {
   }
 }
 
+// Load feed on page load and refresh every 30 seconds
 loadLiveFeed();
 setInterval(loadLiveFeed, 30000);
 
-// ========== 6. REVIEW SUBMISSION ==========
+// ========== 6. AUTO-POPULATE REVIEW FORM FROM SHIPPING DETAILS ==========
+const fullNameInput = document.getElementById('fullName');
+const cityInput = document.getElementById('city');
+const reviewNameInput = document.getElementById('reviewName');
+const reviewCityInput = document.getElementById('reviewCity');
+
+function syncReviewFields() {
+  // Only copy if the review field is empty – respect user input
+  if (fullNameInput.value && reviewNameInput.value === '') {
+    reviewNameInput.value = fullNameInput.value;
+  }
+  if (cityInput.value && reviewCityInput.value === '') {
+    reviewCityInput.value = cityInput.value;
+  }
+}
+
+// Sync when shipping fields change
+fullNameInput.addEventListener('input', syncReviewFields);
+cityInput.addEventListener('input', syncReviewFields);
+// Also sync once on page load (though initially empty, harmless)
+syncReviewFields();
+
+// ========== 7. REVIEW SUBMISSION ==========
 const reviewForm = document.getElementById('reviewForm');
 if (reviewForm) {
   reviewForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('reviewName').value.trim();
-    const city = document.getElementById('reviewCity').value.trim();
+    const name = reviewNameInput.value.trim();
+    const city = reviewCityInput.value.trim();
     const rating = document.getElementById('reviewRating').value;
     const reviewText = document.getElementById('reviewText').value.trim();
     
@@ -689,6 +712,8 @@ if (reviewForm) {
       });
       document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#aaffaa;">✅ Thank you! Your review will appear after moderation.</span>';
       reviewForm.reset();
+      // After reset, sync again (so if shipping details are still there, they will repopulate)
+      syncReviewFields();
     } catch (err) {
       document.getElementById('reviewFormFeedback').innerHTML = '<span style="color:#ffcccc;">Error. Please try again later.</span>';
     } finally {
