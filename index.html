@@ -373,7 +373,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <i class="fas fa-info-circle"></i> After payment, simply close this tab to return
       </div>
 
-      <!-- === LIVE ACTIVITY FEED === -->
+      <!-- === LIVE ACTIVITY FEED (JSONP) === -->
       <div class="live-feed" id="liveFeedContainer">
         <h4><i class="fas fa-bolt"></i> Live Activity</h4>
         <div id="feedList">
@@ -522,7 +522,7 @@ confirmBtn.addEventListener('click', async () => {
     timestamp: new Date().toISOString(),
     notifyEmail: 'contactdogrifolk@gmail.com'
   };
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
   
   try {
     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -555,7 +555,7 @@ async function subscribeNewsletter() {
   if (!isValidEmail(email)) { alert('Valid email required'); return; }
   if (typeof gtag !== 'undefined') gtag('event', 'subscribe');
   let nlData = { type: 'newsletter', email: email.substring(0,100), timestamp: new Date().toISOString(), notify: 'contactdogrifolk@gmail.com' };
-  await fetch('https://script.google.com/macros/s/AKfycbyxfOoczKaX82PV6Wim-0XTdZo1NtKdzz1GtKiyGaMPgn2pOkK97PA8TDks6UIBwwvm/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
+  await fetch('https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
   document.getElementById('newsletterMsg').innerHTML = '✅ Subscribed! Thank you.';
   document.getElementById('newsletterEmail').value = '';
   setTimeout(() => document.getElementById('newsletterMsg').innerHTML = '', 3000);
@@ -563,39 +563,46 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== LIVE ACTIVITY FEED ==========
-const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbx1oxYoDiC80-w5KhFBnO-8N6Sw-LsFbgNSU1L9u3NaEXhR0eNXpQqHEkHMnUBVWXdQ/exec';
+// ========== LIVE ACTIVITY FEED (JSONP) ==========
+const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
 const feedContainer = document.getElementById('feedList');
 
-async function loadLiveFeed() {
+function loadLiveFeed() {
   if (!FEED_API_URL) {
     feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Feed not configured.</div></div>';
     return;
   }
-  try {
-    const response = await fetch(FEED_API_URL);
-    const entries = await response.json();
-    if (!entries.length) {
-      feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
-      return;
-    }
-    let html = '';
-    for (let item of entries) {
-      const icon = item.type === 'order' ? '📚' : '⭐';
-      html += `
-        <div class="feed-item">
-          <div class="feed-icon">${icon}</div>
-          <div class="feed-text">${escapeHtml(item.text)}</div>
-          <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
-        </div>
-      `;
-    }
-    feedContainer.innerHTML = html;
-  } catch (error) {
-    console.error('Failed to load live feed:', error);
-    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Unable to load feed. Please try again later.</div></div>';
-  }
+  
+  // Remove any existing script tag
+  const oldScript = document.getElementById('jsonp-script');
+  if (oldScript) oldScript.remove();
+  
+  // Create new script tag with JSONP callback
+  const script = document.createElement('script');
+  script.id = 'jsonp-script';
+  script.src = `${FEED_API_URL}?callback=handleFeedResponse&t=${Date.now()}`;
+  document.head.appendChild(script);
 }
+
+// Global callback function for JSONP
+window.handleFeedResponse = function(entries) {
+  if (!entries || !entries.length) {
+    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
+    return;
+  }
+  let html = '';
+  for (let item of entries) {
+    const icon = item.type === 'order' ? '📚' : '⭐';
+    html += `
+      <div class="feed-item">
+        <div class="feed-icon">${icon}</div>
+        <div class="feed-text">${escapeHtml(item.text)}</div>
+        <div class="feed-time">${formatTimeAgo(item.timestamp)}</div>
+      </div>
+    `;
+  }
+  feedContainer.innerHTML = html;
+};
 
 function escapeHtml(str) {
   return str.replace(/[&<>]/g, function(m) {
@@ -647,7 +654,7 @@ if (reviewForm) {
       reviewText: reviewText
     };
     
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx1oxYoDiC80-w5KhFBnO-8N6Sw-LsFbgNSU1L9u3NaEXhR0eNXpQqHEkHMnUBVWXdQ/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
     try {
       await fetch(scriptURL, {
         method: 'POST',
