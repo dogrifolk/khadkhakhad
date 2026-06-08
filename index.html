@@ -522,7 +522,7 @@ confirmBtn.addEventListener('click', async () => {
     timestamp: new Date().toISOString(),
     notifyEmail: 'contactdogrifolk@gmail.com'
   };
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
   
   try {
     await fetch(scriptURL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -555,7 +555,7 @@ async function subscribeNewsletter() {
   if (!isValidEmail(email)) { alert('Valid email required'); return; }
   if (typeof gtag !== 'undefined') gtag('event', 'subscribe');
   let nlData = { type: 'newsletter', email: email.substring(0,100), timestamp: new Date().toISOString(), notify: 'contactdogrifolk@gmail.com' };
-  await fetch('https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
+  await fetch('https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec', { method: 'POST', mode: 'no-cors', body: JSON.stringify(nlData) }).catch(e=>console.log);
   document.getElementById('newsletterMsg').innerHTML = '✅ Subscribed! Thank you.';
   document.getElementById('newsletterEmail').value = '';
   setTimeout(() => document.getElementById('newsletterMsg').innerHTML = '', 3000);
@@ -564,7 +564,7 @@ function closeModal() { document.getElementById('successModal').classList.remove
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
 // ========== LIVE ACTIVITY FEED (JSONP) ==========
-const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
+const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
 function loadLiveFeed() {
@@ -654,7 +654,7 @@ if (reviewForm) {
       reviewText: reviewText
     };
     
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz3l43x4shlYrxwOG2fkXNC1KXCYMcauziTbZIzbku6TyvTYkPbAFJpoU7d9YbGTI26/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
     try {
       await fetch(scriptURL, {
         method: 'POST',
