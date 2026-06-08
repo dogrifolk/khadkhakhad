@@ -12,7 +12,7 @@
 <meta name="geo.region" content="IN-JK">
 <meta name="geo.placename" content="Jammu">
 
-<!-- Performance & Security (unchanged, but CSP includes corsproxy.io) -->
+<!-- Performance & Security -->
 <meta http-equiv="Cache-Control" content="max-age=86400, public">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
@@ -63,7 +63,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* ========== MAIN STYLES (unchanged except feed section) ========== */
+/* ========== MAIN STYLES ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: #fef7e8; font-family: 'Baloo 2', cursive; color: #1f2c3a; }
 :root { --teal-deep: #023b42; --teal: #0c7c8c; --gold: #f5b81b; --orange: #e55c13; }
@@ -155,7 +155,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 /* ========== LIVE FEED COMPACT STYLES ========== */
 .live-feed {
   margin-top: 25px;
-  padding: 12px;  /* reduced from 15px */
+  padding: 12px;
   background: rgba(255,255,255,0.08);
   border-radius: 16px;
   border-left: 3px solid var(--gold);
@@ -163,7 +163,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 }
 .live-feed h4 {
   font-family: 'Oswald', sans-serif;
-  font-size: 0.8rem;  /* smaller heading */
+  font-size: 0.8rem;
   margin-bottom: 8px;
   color: var(--gold);
   display: flex;
@@ -171,8 +171,8 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
   gap: 6px;
 }
 .feed-item {
-  font-size: 0.65rem;  /* smaller text */
-  padding: 6px 0;      /* reduced padding */
+  font-size: 0.65rem;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255,255,255,0.1);
   display: flex;
   align-items: flex-start;
@@ -312,7 +312,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
       <div style="font-family:'Kalam'; margin-top:12px;">— Sumit Khajuria (Jammu Writer, Dogra Poet & Dogri Musician)</div>
     </div>
 
-    <!-- MIDDLE COLUMN: SHIPPING DETAILS (unchanged) -->
+    <!-- MIDDLE COLUMN: SHIPPING DETAILS -->
     <div class="order-card">
       <h3><i class="fas fa-truck"></i> SHIPPING DETAILS</h3>
       <div>
@@ -331,7 +331,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <div id="shippingFeedback" style="margin-top: 12px; font-size: 0.8rem;"></div>
       </div>
 
-      <!-- INSTRUCTIONS (4 steps + green info box + bonus) -->
+      <!-- INSTRUCTIONS -->
       <div style="margin-top: 25px; padding: 15px; background: #f0f7f9; border-radius: 16px; border-left: 4px solid var(--gold);">
         <h4 style="color: var(--teal-deep); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
           <i class="fas fa-info-circle"></i> How to Complete Your Order
@@ -377,7 +377,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         <i class="fas fa-info-circle"></i> After payment, simply close this tab to return
       </div>
 
-      <!-- === LIVE ACTIVITY FEED (compact layout) === -->
+      <!-- LIVE ACTIVITY FEED -->
       <div class="live-feed" id="liveFeedContainer">
         <h4><i class="fas fa-bolt"></i> Live Activity</h4>
         <div id="feedList">
@@ -385,7 +385,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
         </div>
       </div>
 
-      <!-- === REVIEW SUBMISSION FORM === -->
+      <!-- REVIEW SUBMISSION FORM -->
       <div class="review-form">
         <h4 style="font-family: 'Oswald', sans-serif; font-size: 0.85rem; margin-bottom: 10px; color: var(--gold);">
           <i class="fas fa-star"></i> Share Your Experience
@@ -567,7 +567,7 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== 5. LIVE FEED (corsproxy.io) with improved formatting ==========
+// ========== 5. LIVE FEED (corsproxy.io – working) ==========
 const FEED_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
 const feedContainer = document.getElementById('feedList');
 
@@ -594,26 +594,20 @@ function formatTimeAgo(timestamp) {
   return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
 }
 
-// Reformat review text: move stars after the comment
 function reformatReviewText(originalText) {
-  // Pattern: "Name from City rated: ⭐⭐⭐⭐⭐ "comment""
-  // We'll extract the comment and stars, then reorder.
   const starMatch = originalText.match(/(⭐+)/);
-  if (!starMatch) return originalText; // not a review
+  if (!starMatch) return originalText;
   const stars = starMatch[1];
-  // Remove the stars and the preceding "rated: " and following space
   let commentPart = originalText.replace(/rated: /, '').replace(stars, '').trim();
-  // Remove any extra quotes if present
   commentPart = commentPart.replace(/^["']|["']$/g, '');
-  // Return new format: comment then stars
   return `${commentPart} ${stars}`;
 }
 
 function formatFeedItem(item) {
   let displayText = '';
-  let icon = '🔔'; // default live feed icon
+  let icon = '🔔';
   if (item.type === 'order') {
-    displayText = item.text; // already "Name from City ordered a copy 📚"
+    displayText = item.text;
     icon = '📢';
   } else if (item.type === 'review') {
     displayText = reformatReviewText(item.text);
@@ -631,7 +625,6 @@ async function loadLiveFeed() {
   try {
     const response = await fetch(proxyUrl);
     let text = await response.text();
-    // Remove JSONP wrapper
     text = text.replace(/^\s*[\w\d_]+\s*\(/, '').replace(/\);?\s*$/, '');
     const entries = JSON.parse(text);
     if (!entries || !entries.length) {
@@ -656,7 +649,6 @@ async function loadLiveFeed() {
   }
 }
 
-// Load feed on page load and refresh every 30 seconds
 loadLiveFeed();
 setInterval(loadLiveFeed, 30000);
 
