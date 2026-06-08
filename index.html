@@ -460,7 +460,7 @@ footer { background: #ffefcf; color: #3a2a1f; padding: 50px 24px 24px; border-to
 </div>
 
 <script>
-// Mobile menu
+// ========== 1. MOBILE MENU ==========
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu = document.getElementById('mobile-menu');
 hamburgerBtn.addEventListener('click', () => {
@@ -469,7 +469,7 @@ hamburgerBtn.addEventListener('click', () => {
   hamburgerBtn.setAttribute('aria-expanded', !isExpanded);
 });
 
-// Helper functions
+// ========== 2. HELPER FUNCTIONS ==========
 function sanitizeInput(str) { if (!str) return ''; return str.replace(/<[^>]*>/g, '').trim().substring(0,200); }
 function isValidPhone(phone) { return /^[6-9]\d{9}$|^\+91[6-9]\d{9}$|^0?[6-9]\d{9}$/.test(phone.replace(/[\s\-\(\)]/g,'')); }
 function isValidEmail(email) { if (!email) return true; return /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(email); }
@@ -483,7 +483,7 @@ function showPopupMessage(msg, isError = false) {
   setTimeout(() => popup.remove(), 3000);
 }
 
-// Confirm shipping with duplicate prevention
+// ========== 3. CONFIRM SHIPPING ==========
 const confirmBtn = document.getElementById('confirmShippingBtn');
 const razorpayButton = document.getElementById('razorpayButton');
 const RAZORPAY_LINK = 'https://rzp.io/rzp/IEA67p0P';
@@ -548,7 +548,7 @@ razorpayButton.addEventListener('click', () => {
   }
 });
 
-// Newsletter
+// ========== 4. NEWSLETTER ==========
 async function subscribeNewsletter() {
   let email = document.getElementById('newsletterEmail').value;
   if (!email) { alert('Enter email'); return; }
@@ -563,29 +563,36 @@ async function subscribeNewsletter() {
 function closeModal() { document.getElementById('successModal').classList.remove('open'); }
 window.onclick = (e) => { if (e.target === document.getElementById('successModal')) closeModal(); };
 
-// ========== LIVE ACTIVITY FEED (JSONP) ==========
-const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
-const feedContainer = document.getElementById('feedList');
-
-function loadLiveFeed() {
-  if (!FEED_API_URL) {
-    feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Feed not configured.</div></div>';
-    return;
-  }
-  
-  // Remove any existing script tag
-  const oldScript = document.getElementById('jsonp-script');
-  if (oldScript) oldScript.remove();
-  
-  // Create new script tag with JSONP callback
-  const script = document.createElement('script');
-  script.id = 'jsonp-script';
-  script.src = `${FEED_API_URL}?callback=handleFeedResponse&t=${Date.now()}`;
-  document.head.appendChild(script);
+// ========== 5. LIVE FEED FUNCTIONS ==========
+// Helper: escape HTML
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
 }
 
-// Global callback function for JSONP
+// Helper: format time ago
+function formatTimeAgo(timestamp) {
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins} min ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+}
+
+// Global callback for JSONP (must be defined before any feed loads)
 window.handleFeedResponse = function(entries) {
+  const feedContainer = document.getElementById('feedList');
+  if (!feedContainer) return;
   if (!entries || !entries.length) {
     feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">📭</div><div class="feed-text">No recent activity yet. Be the first to order!</div></div>';
     return;
@@ -604,30 +611,32 @@ window.handleFeedResponse = function(entries) {
   feedContainer.innerHTML = html;
 };
 
-function escapeHtml(str) {
-  return str.replace(/[&<>]/g, function(m) {
-    if (m === '&') return '&amp;';
-    if (m === '<') return '&lt;';
-    if (m === '>') return '&gt;';
-    return m;
-  });
+const FEED_API_URL = 'https://script.google.com/macros/s/AKfycbwXtGkwXEQf9l7yPNB52ajG4tMHZ0FvYgL_rhlcBgree5uKeep5Sj-0hWK5wU_lzKo3/exec';
+const feedContainer = document.getElementById('feedList');
+
+function loadLiveFeed() {
+  if (!feedContainer) return;
+  feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="feed-text">Loading latest activity...</div></div>';
+  
+  // Remove any existing script tag to avoid duplicates
+  const oldScript = document.getElementById('jsonp-script');
+  if (oldScript) oldScript.remove();
+  
+  // Create new script tag with JSONP callback
+  const script = document.createElement('script');
+  script.id = 'jsonp-script';
+  script.src = `${FEED_API_URL}?callback=handleFeedResponse&t=${Date.now()}`;
+  script.onerror = function() {
+    if (feedContainer) feedContainer.innerHTML = '<div class="feed-item"><div class="feed-icon">⚠️</div><div class="feed-text">Failed to load feed. Please refresh.</div></div>';
+  };
+  document.head.appendChild(script);
 }
 
-function formatTimeAgo(timestamp) {
-  if (!timestamp) return '';
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now - date;
-  const diffMins = Math.floor(diffMs / 60000);
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins} min ago`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-}
+// Load feed immediately and refresh every 30 seconds
+loadLiveFeed();
+setInterval(loadLiveFeed, 30000);
 
-// ========== REVIEW SUBMISSION HANDLER ==========
+// ========== 6. REVIEW SUBMISSION ==========
 const reviewForm = document.getElementById('reviewForm');
 if (reviewForm) {
   reviewForm.addEventListener('submit', async (e) => {
@@ -673,10 +682,6 @@ if (reviewForm) {
     }
   });
 }
-
-// Load feed on page load and refresh every 30 seconds
-loadLiveFeed();
-setInterval(loadLiveFeed, 30000);
 </script>
 </body>
 </html>
